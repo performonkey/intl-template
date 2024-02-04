@@ -34,8 +34,10 @@ export function translate(locale, strings, ...parts) {
 	const key = strings.join("{}")
 	const translation = TRANSLATIONS?.[locale]
 	let { template, order } = translation?.[key] || {}
-	if (!template && import.meta?.env?.MODE === "development") {
-		console.warn(`not match translate key, ${key}`, { translation, locale, strings, parts })
+	if (!template) {
+		if (import.meta?.env?.MODE === "development") {
+			console.warn(`not match translate key, ${key}`, { translation, locale, strings, parts })
+		}
 		template = strings.slice()
 		order = parts.map((_, i) => i)
 	}
