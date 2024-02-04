@@ -1,6 +1,6 @@
 {
 	"name": "intl-template",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"description": "l10n tagged template literals",
 	"type": "module",
 	"main": "dist/intl.js",
