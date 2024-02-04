@@ -40,7 +40,7 @@ export function translate(locale, strings, ...parts) {
 		order = parts.map((_, i) => i)
 	}
 
-	if (template.length !== strings.length) {
+	if (parts.length > 0 && template.length - 1 !== parts.length) {
 		throw new Error(`translate template parts length not match. locale: ${locale}, key: ${key}`)
 	}
 
