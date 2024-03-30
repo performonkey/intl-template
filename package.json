@@ -1,22 +1,23 @@
 {
-	"name": "intl-template",
-	"version": "0.0.5",
-	"description": "l10n tagged template literals",
-	"type": "module",
-	"main": "dist/intl.js",
-	"module": "src/intl.js",
-	"scripts": {
-		"build": "tsc",
-		"test": "node --test"
-	},
-	"keywords": [
-		"i18n",
-		"l10n",
-		"tagged template literals"
-	],
-	"author": "p10y",
-	"license": "ISC",
-	"devDependencies": {
-		"typescript": "^5.0.0"
-	}
+  "name": "intl-template",
+  "version": "1.0.0-alpha.0",
+  "description": "l10n tagged template literals",
+  "type": "module",
+  "main": "dist/intl.js",
+  "module": "src/intl.js",
+  "repository": "github:performonkey/intl-template",
+  "scripts": {
+    "build": "tsc",
+    "test": "node --test"
+  },
+  "keywords": [
+    "i18n",
+    "l10n",
+    "tagged template literals"
+  ],
+  "author": "p10y",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
 }

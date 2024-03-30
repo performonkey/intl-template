@@ -15,9 +15,5 @@
 		"strict": true,
 		"skipLibCheck": true
 	},
-	"exclude": [
-		"dist",
-		"*.test.js",
-		"jest.config.js"
-	]
+	"exclude": ["dist", "src/*.test.js", "jest.config.js"]
 }
