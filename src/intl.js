@@ -37,7 +37,7 @@ export class Translation {
 	 * Templates object that stores the translation templates for each locale.
 	 * @type {Proxy}
 	 */
-	templates = new Proxy({}, {
+	#templates = new Proxy({}, {
 		get(templates, locale) {
 			return new Proxy(templates[locale] || {}, {
 				set(region, key, value) {
@@ -62,6 +62,18 @@ export class Translation {
 		}
 	})
 
+	get templates() {
+		return this.#templates
+	}
+
+	set templates(value) {
+		Object.entries(value).forEach(([locale, regionTemplates]) => {
+			this.#templates[locale] = regionTemplates
+		})
+
+		return true
+	}
+
 	/**
 	 * Translates a string based on the provided locale and strings.
 	 *
@@ -77,7 +89,7 @@ export class Translation {
 		}
 
 		const key = strings.join("{}")
-		const translation = this.templates?.[locale]
+		const translation = this.#templates?.[locale]
 		let { template, order } = translation?.[key] || {}
 		if (!template) {
 			if (import.meta?.env?.MODE === "development") {

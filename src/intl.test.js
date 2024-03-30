@@ -3,6 +3,28 @@ import test from "node:test"
 import { Translation, Runes } from "./intl.js"
 
 test("template", async (t) => {
+	await t.test("multiple locale template parse", () => {
+		const translation = new Translation()
+		translation.templates = {
+			"es-ES": {
+				"{}matched{}": "{}{}uno",
+			},
+			"zh-CN": {
+				"{}matched{}": "{}{}丁戊卯",
+			}
+		}
+
+		assert.deepEqual(
+			translation.templates["zh-CN"],
+			{
+				"{}matched{}": {
+					template: ["", "", "丁戊卯"],
+					order: [0, 1]
+				},
+			},
+		)
+	})
+
 	await t.test("template slot parse", () => {
 		const translation = new Translation()
 		const locale = "zh-CN"
