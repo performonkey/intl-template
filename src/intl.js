@@ -33,6 +33,9 @@ export function parseTemplate(templateString) {
  * Represents a Translation object that handles string translation based on locale and templates.
  */
 export class Translation {
+	/** @type {"" | "react"} */
+	mode = "react"
+
 	/**
 	 * Templates object that stores the translation templates for each locale.
 	 * @type {Proxy}
@@ -118,6 +121,10 @@ export class Translation {
 
 			return runes
 		}, new Runes())
+
+		if (this.mode !== "react") {
+			return runes.toString()
+		}
 
 		return runes
 	}
