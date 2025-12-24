@@ -33,8 +33,19 @@ export function parseTemplate(templateString) {
  * Represents a Translation object that handles string translation based on locale and templates.
  */
 export class Translation {
-	/** @type {"" | "react"} */
+	/** @type {"string" | "react"} */
 	mode = "react"
+
+	/**
+	 * The current locale for translation.
+	 * @type {string} 
+	 **/
+	locale = ""
+
+	constructor(defaultLocale, mode = "react") {
+		this.mode = mode
+		this.locale = defaultLocale || globalThis?.navigator?.language || "en"
+	}
 
 	/**
 	 * Templates object that stores the translation templates for each locale.
@@ -134,4 +145,4 @@ const translation = new Translation()
 
 export default translation
 
-export const l10n = translation.translate.bind(null, globalThis?.navigator?.language);
+export const l10n = translation.translate.bind(null, translation.locale);
