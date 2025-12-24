@@ -145,4 +145,4 @@ const translation = new Translation()
 
 export default translation
 
-export const l10n = translation.translate.bind(null, translation.locale);
+export const l10n = (strings, ...parts) => translation.translate(translation.locale, strings, ...parts);
