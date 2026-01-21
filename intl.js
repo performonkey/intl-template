@@ -106,9 +106,7 @@ export class Translation {
 		const translation = this.#templates?.[locale]
 		let { template, order } = translation?.[key] || {}
 		if (!template) {
-			if (import.meta?.env?.MODE === "development") {
-				console.warn(`not match translate key, ${key}`, { translation, locale, strings, parts })
-			}
+			console.debug(`[intl-template]not match translate key, ${key}`, { translation, locale, strings, parts })
 			template = strings.slice()
 			order = parts.map((_, i) => i)
 		}

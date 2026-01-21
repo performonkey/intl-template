@@ -3,11 +3,13 @@
   "version": "1.0.3",
   "description": "l10n tagged template literals",
   "type": "module",
-  "main": "intl.js",
+  "main": "intl.cjs",
+  "module": "intl.js",
   "repository": "github:performonkey/intl-template",
   "scripts": {
-    "prepublish": "tsc --emitDeclarationOnly --allowJs -d --outDir . *.js",
-    "postpublish": "rm -rf *.d.ts"
+    "build": "bun build --outfile intl.cjs --production --format cjs intl.js",
+    "prepublish": "tsc --emitDeclarationOnly --allowJs -d --outDir . *.js && bun run build",
+    "postpublish": "rm -rf *.d.ts *.cjs"
   },
   "keywords": [
     "i18n",
