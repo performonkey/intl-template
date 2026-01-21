@@ -75,7 +75,8 @@ test("translation.translate", async (t) => {
 		translation.templates["zh-CN"] = {
 			"abc {} def {}": "甲乙丙 {} {} 丁戊卯",
 		}
-		const l10n = translation.translate.bind(null, "zh-CN")
+		translation.locale = "zh-CN"
+		const l10n = translation.translate
 		assert.deepEqual(l10n`abc ${123} def ${345}`, ["甲乙丙 ", 123, " ", 345, " 丁戊卯"])
 	})
 
@@ -84,7 +85,8 @@ test("translation.translate", async (t) => {
 		translation.templates["zh-CN"] = {
 			"abc {} def {}": "甲乙丙 {1} {0} 丁戊卯",
 		}
-		const l10n = translation.translate.bind(null, "zh-CN")
+		translation.locale = "zh-CN"
+		const l10n = translation.translate
 		assert.equal(l10n`abc ${123} def ${345}`.toString(), "甲乙丙 345 123 丁戊卯")
 	})
 
@@ -93,7 +95,8 @@ test("translation.translate", async (t) => {
 		translation.templates["zh-CN"] = {
 			"{} def {}": "{1} {0} 丁戊卯",
 		}
-		const l10n = translation.translate.bind(null, "zh-CN")
+		translation.locale = "zh-CN"
+		const l10n = translation.translate
 		assert.equal(l10n`${locale => locale} def ${345}`.toString(), "345 zh-CN 丁戊卯")
 	})
 
@@ -103,7 +106,8 @@ test("translation.translate", async (t) => {
 			"{} def {}": "{} 丁戊卯",
 			"{}matched{}": "{}{}丁戊卯",
 		}
-		const l10n = translation.translate.bind(null, "zh-CN")
+		translation.locale = "zh-CN"
+		const l10n = translation.translate
 		try {
 			l10n`${locale => locale} def ${345}`
 		} catch (err) {
@@ -119,7 +123,8 @@ test("translation.translate", async (t) => {
 	await t.test("call as function", () => {
 		const translation = new Translation()
 		translation.templates["zh-CN"] = {}
-		const l10n = translation.translate.bind(null, "zh-CN")
+		translation.locale = "zh-CN"
+		const l10n = translation.translate
 		assert.equal(l10n("{} def {} {}", 1, "a", "b").toString(), '1 def a b')
 	})
 })

@@ -6,8 +6,14 @@
   "main": "intl.cjs",
   "module": "intl.js",
   "repository": "github:performonkey/intl-template",
+  "files": [
+    "README.md",
+    "intl.js",
+    "intl.cjs",
+    "intl.d.ts"
+  ],
   "scripts": {
-    "build": "bun build --outfile intl.cjs --production --format cjs intl.js",
+    "build": "bun build --outfile intl.cjs --format cjs intl.js",
     "postbuild": "tsc --emitDeclarationOnly --allowJs -d --outDir . *.js",
     "postpublish": "rm -rf *.d.ts *.cjs"
   },

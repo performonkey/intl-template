@@ -97,7 +97,9 @@ export class Translation {
 	 * @returns {Runes} - The translated string with dynamic parts inserted.
 	 * @throws {Error} - If the length of the template parts does not match the length of the template.
 	 */
-	translate = (locale, strings, ...parts) => {
+	translate = (strings, ...parts) => {
+		const locale = this.locale
+
 		if (typeof strings === "string") {
 			strings = strings.split("{}")
 		}
@@ -143,4 +145,4 @@ const translation = new Translation()
 
 export default translation
 
-export const l10n = (strings, ...parts) => translation.translate(translation.locale, strings, ...parts);
+export const l10n = translation.translate
