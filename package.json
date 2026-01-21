@@ -8,7 +8,7 @@
   "repository": "github:performonkey/intl-template",
   "scripts": {
     "build": "bun build --outfile intl.cjs --production --format cjs intl.js",
-    "prepublish": "tsc --emitDeclarationOnly --allowJs -d --outDir . *.js && bun run build",
+    "postbuild": "tsc --emitDeclarationOnly --allowJs -d --outDir . *.js",
     "postpublish": "rm -rf *.d.ts *.cjs"
   },
   "keywords": [
