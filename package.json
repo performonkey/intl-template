@@ -3,8 +3,9 @@
   "version": "1.0.5",
   "description": "l10n tagged template literals",
   "type": "module",
-  "main": "intl.cjs",
-  "module": "intl.js",
+  "main": "./intl.cjs",
+  "module": "./intl.js",
+  "types": "./intl.d.ts",
   "repository": "github:performonkey/intl-template",
   "files": [
     "README.md",

@@ -42,6 +42,10 @@ export class Translation {
 	 **/
 	locale = ""
 
+	/**
+	 * @param {string} defaultLocale 
+	 * @param {"string" | "react"} mode 
+	 */
 	constructor(defaultLocale, mode = "react") {
 		this.mode = mode
 		this.locale = defaultLocale || globalThis?.navigator?.language || "en"
@@ -91,7 +95,6 @@ export class Translation {
 	/**
 	 * Translates a string based on the provided locale and strings.
 	 *
-	 * @param {string} locale - The locale to use for translation.
 	 * @param {TemplateStringsArray | string} strings - The string or array of strings to be translated.
 	 * @param {...any} parts - The dynamic parts to be inserted into the translated string.
 	 * @returns {Runes} - The translated string with dynamic parts inserted.
@@ -141,7 +144,7 @@ export class Translation {
 	}
 }
 
-const translation = new Translation()
+export const translation = new Translation()
 
 export default translation
 
