@@ -1,6 +1,6 @@
 {
   "name": "intl-template",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "l10n tagged template literals",
   "type": "module",
   "main": "./intl.cjs",
