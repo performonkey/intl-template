@@ -4,29 +4,57 @@ export class Runes extends Array {
 	}
 }
 
+const SLOT_RE = /\{(\d*)\}/g
+const TEMPLATE_KEY_CACHE = new WeakMap()
+
 /**
  * Parses a template string and extracts the template parts and order of slots.
  * @param {string} templateString - The template string to parse.
  * @returns {{ template: string[], order: number[] }}
  */
 export function parseTemplate(templateString) {
-	const order = [];
-	const template = [];
-	const parts = templateString.split(/({\d*})/)
-	parts.forEach((part) => {
-		if (part.match(/^{\d*}$/)) {
-			if (part === '{}') {
-				order.push(order.length)
-			} else {
-				// slot with order, e.g. `{2}abc{1}def{0}`
-				order.push(parseInt(part.slice(1, -1), 10))
-			}
-		} else {
-			template.push(part)
-		}
-	})
+	const template = []
+	const order = []
+	let lastIndex = 0
+	let match
+
+	SLOT_RE.lastIndex = 0
+	while ((match = SLOT_RE.exec(templateString)) !== null) {
+		template.push(templateString.slice(lastIndex, match.index))
+		// `{}` keeps original auto-numbering: index = current order length
+		order.push(match[1] === "" ? order.length : +match[1])
+		lastIndex = SLOT_RE.lastIndex
+	}
+	template.push(templateString.slice(lastIndex))
 
 	return { template, order }
+}
+
+function compileRegionTemplates(regionTemplates) {
+	const region = {}
+	for (const key in regionTemplates) {
+		region[key] = parseTemplate(regionTemplates[key])
+	}
+
+	return region
+}
+
+function getTemplateKey(strings) {
+	if (!strings.raw) {
+		return strings.join("{}")
+	}
+
+	let key = TEMPLATE_KEY_CACHE.get(strings)
+	if (key === undefined) {
+		key = strings.join("{}")
+		TEMPLATE_KEY_CACHE.set(strings, key)
+	}
+
+	return key
+}
+
+function toTemplateString(value) {
+	return value == null ? "" : value
 }
 
 /**
@@ -55,26 +83,29 @@ export class Translation {
 	 * Templates object that stores the translation templates for each locale.
 	 * @type {Proxy}
 	 */
-	#templates = new Proxy({}, {
-		get(templates, locale) {
-			return new Proxy(templates[locale] || {}, {
-				set(region, key, value) {
-					if (typeof value !== "string") {
-						throw new Error("Template must be a string.")
-					}
+	#regions = {}
 
-					region[key] = parseTemplate(value)
+	#regionProxies = {}
 
-					return true
-				}
-			})
+	#templates = new Proxy(this.#regions, {
+		get: (regions, locale) => {
+			const region = regions[locale]
+			if (!region) {
+				return new Proxy({}, REGION_HANDLER)
+			}
+
+			let proxy = this.#regionProxies[locale]
+			if (!proxy) {
+				proxy = new Proxy(region, REGION_HANDLER)
+				this.#regionProxies[locale] = proxy
+			}
+
+			return proxy
 		},
-		set(templates, locale, regionTemplates) {
-			templates[locale] = Object.entries(regionTemplates).reduce((region, [key, value]) => {
-				region[key] = parseTemplate(value)
-
-				return region
-			}, {})
+		set: (regions, locale, regionTemplates) => {
+			const region = compileRegionTemplates(regionTemplates)
+			regions[locale] = region
+			this.#regionProxies[locale] = new Proxy(region, REGION_HANDLER)
 
 			return true
 		}
@@ -85,11 +116,9 @@ export class Translation {
 	}
 
 	set templates(value) {
-		Object.entries(value).forEach(([locale, regionTemplates]) => {
-			this.#templates[locale] = regionTemplates
-		})
-
-		return true
+		for (const locale in value) {
+			this.#templates[locale] = value[locale]
+		}
 	}
 
 	/**
@@ -97,50 +126,63 @@ export class Translation {
 	 *
 	 * @param {TemplateStringsArray | string} strings - The string or array of strings to be translated.
 	 * @param {...any} parts - The dynamic parts to be inserted into the translated string.
-	 * @returns {Runes} - The translated string with dynamic parts inserted.
+	 * @returns {Runes | string} - The translated string with dynamic parts inserted.
 	 * @throws {Error} - If the length of the template parts does not match the length of the template.
 	 */
 	translate = (strings, ...parts) => {
 		const locale = this.locale
+		const isStringInput = typeof strings === "string"
+		const key = isStringInput ? strings : getTemplateKey(strings)
 
-		if (typeof strings === "string") {
-			strings = strings.split("{}")
-		}
-
-		const key = strings.join("{}")
-		const translation = this.#templates?.[locale]
-		let { template, order } = translation?.[key] || {}
-		if (!template) {
-			console.debug(`[intl-template]not match translate key, ${key}`, { translation, locale, strings, parts })
-			template = strings.slice()
-			order = parts.map((_, i) => i)
+		const compiled = this.#regions[locale]?.[key]
+		let template
+		let order
+		if (compiled) {
+			template = compiled.template
+			order = compiled.order
+		} else {
+			template = isStringInput ? strings.split("{}") : strings.slice()
 		}
 
 		if (parts.length !== template.length - 1) {
 			throw new Error(`translate template parts length does not match. locale: ${locale}, key: ${key}`)
 		}
 
-		const runes = template.reduce((runes, template, idx) => {
-			runes.push(template)
-
-			const orderIdx = order[idx]
-			if (orderIdx >= 0) {
-				const part = parts[orderIdx]
-				if (typeof part === "function") {
-					runes.push(part(locale))
-				} else {
-					runes.push(part)
+		const len = template.length
+		if (this.mode !== "react") {
+			let result = ""
+			for (let idx = 0; idx < len; idx++) {
+				result += template[idx]
+				if (idx < parts.length) {
+					const part = parts[order ? order[idx] : idx]
+					result += toTemplateString(typeof part === "function" ? part(locale) : part)
 				}
 			}
 
-			return runes
-		}, new Runes())
+			return result
+		}
 
-		if (this.mode !== "react") {
-			return runes.toString()
+		const runes = new Runes(len + parts.length)
+		let runeIdx = 0
+		for (let idx = 0; idx < len; idx++) {
+			runes[runeIdx++] = template[idx]
+			if (idx < parts.length) {
+				const part = parts[order ? order[idx] : idx]
+				runes[runeIdx++] = typeof part === "function" ? part(locale) : part
+			}
 		}
 
 		return runes
+	}
+}
+
+const REGION_HANDLER = {
+	set(region, key, value) {
+		if (typeof value !== "string") {
+			throw new Error("Template must be a string.")
+		}
+		region[key] = parseTemplate(value)
+		return true
 	}
 }
 

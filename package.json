@@ -15,7 +15,8 @@
   ],
   "scripts": {
     "build": "bun build --outfile intl.cjs --format cjs intl.js",
-    "postbuild": "rm *.d.ts && tsc --emitDeclarationOnly --allowJs -d --outDir . *.js"
+    "perf": "node --test intl.perf.test.js",
+    "postbuild": "rm *.d.ts && tsc --emitDeclarationOnly --allowJs -d --outDir . intl.js intl.test.js"
   },
   "keywords": [
     "i18n",

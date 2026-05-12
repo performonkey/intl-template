@@ -127,6 +127,15 @@ test("translation.translate", async (t) => {
 		const l10n = translation.translate
 		assert.equal(l10n("{} def {} {}", 1, "a", "b").toString(), '1 def a b')
 	})
+
+	await t.test("string mode", () => {
+		const translation = new Translation("zh-CN", "string")
+		translation.templates["zh-CN"] = {
+			"abc {} def {}": "甲乙丙 {1} {0} 丁戊卯",
+		}
+		const l10n = translation.translate
+		assert.equal(l10n`abc ${123} def ${345}`, "甲乙丙 345 123 丁戊卯")
+	})
 })
 
 test("Runes", async (t) => {
